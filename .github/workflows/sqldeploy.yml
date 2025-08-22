@@ -1,0 +1,37 @@
+# This is a basic workflow to help you get started with Actions
+
+on:
+  workflow_dispatch:
+  #push:
+  #  branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+        
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+      with:
+        vs-version: '17.0'  # Visual Studio 2022
+        
+    - name: Build
+      run:      msbuild ./dw1212/dw1212.sqlproj `
+          /p:Configuration=Release `
+          /p:Platform="Any CPU" `
+          /nologo `
+          /nr:false  # 禁用响应文件
+
+    - name: Deploy
+      uses: azure/sql-action@v2
+      with:
+        connection-string: 'Server=tcp:zhftest0801.sql.azuresynapse.azure.cn,1433;Initial Catalog=zhftest;Persist Security Info=False;User ID=sqladminuser;Password=P@ssw0rd!...;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
+        action: 'publish'
+        path: './dw1212/bin/Debug/MyDatabaseProject.dacpac'
