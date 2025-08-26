@@ -1,2 +1,0 @@
-﻿CREATE USER [test0604] FOR LOGIN [test0604];
-
